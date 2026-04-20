@@ -2,10 +2,18 @@
 
 from delta.tables import DeltaTable
 from pyspark.sql.functions import col, current_timestamp
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--catalog", default="lhsdataproject")
+args, unknown = parser.parse_known_args()
+catalog = args.catalog
+
 
 def merge_silver_to_gold():
-    tgt = DeltaTable.forName(spark, "lhsdataproject.gold.dimorganism")
-    src = spark.table("lhsdataproject.silver.silver_organism")  # AutoCDC SCD2
+
+    tgt = DeltaTable.forName(spark, f"{catalog}.gold.dimorganism")
+    src = spark.table( "lhsdataproject.silver.silver_organism")  # AutoCDC SCD2
 
     tgt.alias("tgt").merge(
         src.alias("src"),

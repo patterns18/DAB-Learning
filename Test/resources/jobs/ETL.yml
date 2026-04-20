@@ -1,0 +1,87 @@
+resources:
+  jobs:
+    Data_Pipeline_LHS_Analytics:
+      name: Data_Pipeline_LHS_Analytics
+      tasks:
+        - task_key: Data_Landing_and_Transformation
+          pipeline_task:
+            pipeline_id: bebde9e6-006b-46f5-9573-b11f05ca973c
+            full_refresh: false
+        - task_key: Gold_Dim_EventType
+          depends_on:
+            - task_key: Data_Landing_and_Transformation
+          spark_python_task:
+            python_file: ../../src/LHS Analytics Dimension_Fact Load/DimEvenType.py
+            parameters:
+            - "--catalog"
+            - ${var.catalog}    
+          environment_key: Default  
+        - task_key: Gold_Dim_Location
+          depends_on:
+            - task_key: Data_Landing_and_Transformation
+          spark_python_task:
+            python_file: ../../src/LHS Analytics Dimension_Fact Load/DimLocation.py
+            parameters:
+            - "--catalog"
+            - ${var.catalog}    
+          environment_key: Default
+        - task_key: Gold_Dim_Organism
+          depends_on:
+            - task_key: Data_Landing_and_Transformation
+          spark_python_task:
+            python_file: ../../src/LHS Analytics Dimension_Fact Load/DimOrganism.py
+            parameters:
+            - "--catalog"
+            - ${var.catalog}    
+          environment_key: Default
+        - task_key: Gold_Dim_Patients
+          depends_on:
+            - task_key: Data_Landing_and_Transformation
+          spark_python_task:
+            python_file: ../../src/LHS Analytics Dimension_Fact Load/DimPatient.py
+            parameters:
+            - "--catalog"
+            - ${var.catalog}    
+          environment_key: Default
+        - task_key: Gold_Dim_Procedure
+          depends_on:
+            - task_key: Data_Landing_and_Transformation
+          spark_python_task:
+            python_file: ../../src/LHS Analytics Dimension_Fact Load/DimProcedure.py
+            parameters:
+            - "--catalog"
+            - ${var.catalog}    
+          environment_key: Default
+        - task_key: Gold_Dim_Staff
+          depends_on:
+            - task_key: Data_Landing_and_Transformation
+          spark_python_task:
+            python_file: ../../src/LHS Analytics Dimension_Fact Load/DimStaff.py
+            parameters:
+            - "--catalog"
+            - ${var.catalog}    
+          environment_key: Default
+        - task_key: Gold_Fact_Visit
+          depends_on:
+            - task_key: Gold_Dim_Location
+            - task_key: Gold_Dim_Staff
+            - task_key: Gold_Dim_EventType
+            - task_key: Gold_Dim_Patients
+            - task_key: Gold_Dim_Procedure
+            - task_key: Gold_Dim_Organism
+          spark_python_task:
+            python_file: ../../src/LHS Analytics Dimension_Fact Load/FactVisit.py
+            parameters:
+            - "--catalog"
+            - ${var.catalog}    
+          environment_key: Default
+      queue:
+        enabled: true
+      parameters:
+        - name: catalog
+          default: lhsdataproject
+      environments:
+        - environment_key: Default
+          spec:
+            environment_version: "5"
+      performance_target: PERFORMANCE_OPTIMIZED
