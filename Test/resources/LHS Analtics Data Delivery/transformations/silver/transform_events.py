@@ -5,10 +5,10 @@ from pyspark import pipelines as dp
 
 
 dp.create_streaming_table(
-    name="lhsdataproject.silver.silver_events"
+    name = "lhsdataproject.silver.silver_events"
 )
 
-@dp.append_flow(target="lhsdataproject.silver.silver_events")
+@dp.append_flow(target=  "lhsdataproject.silver.silver_events")
 def silver_events():
     df = spark.readStream.table("stg_silver_events")
     df = df.select("VisitID", "EventType", "EventDate", "EventTime","PIN", "EventNote", "EventStaff", "Facility",
